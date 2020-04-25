@@ -56,6 +56,12 @@ def brain
                 if ($last_global_trade < @data[:position][:avgEntryPrice])
                     target1=(entry + 2.5) ; (target1 = (target1*2).ceil.to_f / 2) 
                 end
+                if ($last_global_trade < @data[:position][:avgEntryPrice])
+                    target1=(entry +2.5) ; (target1 = (target1*2).ceil.to_f / 2)
+                end
+                if (amount*2) == @data[:position][:currentQty].abs
+                    amount +=3
+                end
                 (target3=entry +5 ; target3 = (target3*2).ceil.to_f / 2)
                 (set_trade('limit',target2,amount) ; total_orders+=1) if (@data[:margin][:marginLeverage] < $max_leverage and buy_count==0) # long ej tjock ingen longorder
                 (set_trade('limit',target1,-amount*2) ; total_orders+=1) if ($last_global_trade > entry and sell_count==0) # short take profit
@@ -64,7 +70,13 @@ def brain
             end
             if total_orders < 2 and @data[:position][:currentQty] < 0  #short
                 if ($last_global_trade > @data[:position][:avgEntryPrice])
-                    target2=(entry -2.5) ; (target2 = (target2*2).ceil.to_f / 2)
+                    target2=(entry +2.5) ; (target2 = (target2*2).ceil.to_f / 2)
+                end
+                if ($last_global_trade < @data[:position][:avgEntryPrice])
+                    target1=(entry +2.5) ; (target1 = (target1*2).ceil.to_f / 2)
+                end
+                if (amount*2) == @data[:position][:currentQty].abs
+                    amount +=3
                 end
                 (target4=entry -5 ; target4 = (target4*2).ceil.to_f / 2)
                 (set_trade('limit',target1,-amount) ; total_orders+=1) if (@data[:margin][:marginLeverage] <= $max_leverage and sell_count==0) # short ej tjock ingen shortorder
