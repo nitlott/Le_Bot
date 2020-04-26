@@ -295,7 +295,7 @@ class BitmexWebsocket
             push("Current leverage: " + @data[:margin][:marginLeverage].round(2).to_s + "x. Maximum leverage: " + $max_leverage.to_s + "x." ) if @data[:position][:currentQty] != 0
             push("Position unrealised profit/loss: #{(@data[:position][:unrealisedRoePcnt]*100).round(2)}%") if @data[:position][:currentQty] != 0
             push("Position unrealised profit/loss BTC: #{@data[:position][:unrealisedPnl]}") if @data[:position][:currentQty] != 0
-            push("Total position profits @ BTC: #{@data[:position][:realisedPnl].to_f/100000000.round(8)}") if @data[:position][:currentQty] != 0
+            push("Total position profits since last entry (every 8h) @ BTC: #{@data[:position][:realisedPnl].to_f/100000000.round(8)}") if @data[:position][:currentQty] != 0
             push("Balance: #{@data[:margin][:marginBalance].to_f/100000000.round(8)} BTC")
             push("Available margin: #{@data[:margin][:availableMargin].to_f/100000000.round(8)} BTC") 
             push("Current Price @ #{$symbol + ": "+$last_global_trade.to_s} $")
