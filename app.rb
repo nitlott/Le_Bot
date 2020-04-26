@@ -52,7 +52,13 @@ class BitmexWebsocket
         caller_method = caller_locations.first.label
         x="no_colors"
         if caller_method.include? "listen"
-            puts (time.strftime("log[%d/%m/%Y-%k:%M]>->").gsub(/\s+/, "0")+" "+mess+" ").bg_black.red
+            if mess.include?('Filterd trade')
+                puts (time.strftime("log[%d/%m/%Y-%k:%M]>->").gsub(/\s+/, "0")+" "+mess+" ").bg_black.green
+            elsif mess.include?('REKTALABAMA')
+                puts (time.strftime("log[%d/%m/%Y-%k:%M]>->").gsub(/\s+/, "0")+" "+mess+" ").bg_black.cyan
+            else
+                puts (time.strftime("log[%d/%m/%Y-%k:%M]>->").gsub(/\s+/, "0")+" "+mess+" ").bg_black.red
+            end
         elsif caller_method.include? "selfcheck"
             puts (time.strftime("log[%d/%m/%Y-%k:%M]>->").gsub(/\s+/, "0")+" "+mess+" ").bg_black.gray
         elsif caller_method.include? "set_trade"
@@ -201,8 +207,9 @@ class BitmexWebsocket
                 if data.price
                     $last_global_trade = data.price
                 end
-                display=("Live trades| timestamp: #{data.timestamp} symbol: #{data.symbol} side: #{data.side} #{data.homeNotional} #{data.symbol} @ #{data.price}")
-                push("Live trades| timestamp: #{data.timestamp} symbol: #{data.symbol} side: #{data.side} #{data.homeNotional} #{data.symbol} @ #{data.price}") if data.homeNotional > $settings_live_trigger_size.to_i
+                #display=("Live trades| timestamp: #{data.timestamp} symbol: #{data.symbol} side: #{data.side} #{data.homeNotional} #{data.symbol} @ #{data.price}")
+                dollar=(data.homeNotional.abs * data.price) #timestamp: #{data.timestamp}
+                push("Filterd tradealert! | symbol: #{data.symbol} side: #{data.side} $#{dollar.round(2)} #{data.symbol} @ #{data.price}") if data.homeNotional > $settings_live_trigger_size.to_i
                 if (data.homeNotional and data.symbol and data.price) != nil and $settings_marketflow
                     if data.side == 'Buy' 
                         $flow=$flow + data.homeNotional
@@ -283,7 +290,7 @@ class BitmexWebsocket
         $amount_to_trade = (@data[:margin][:marginBalance]/100000) if @data[:margin][:marginBalance] > 100000
         if @counter<=0
             send_cmd
-            @counter=$display_info_timer * 90 * 3
+            @counter=$display_info_timer * 15 * 3
             push("Current position: " + @data[:position][:currentQty].to_s + " avg entry @ " + @data[:position][:avgEntryPrice].to_s ) if @data[:position][:currentQty] != 0
             push("Current leverage: " + @data[:margin][:marginLeverage].round(2).to_s + "x. Maximum leverage: " + $max_leverage.to_s + "x." ) if @data[:position][:currentQty] != 0
             push("Position unrealised profit/loss: #{(@data[:position][:unrealisedRoePcnt]*100).round(2)}%") if @data[:position][:currentQty] != 0
