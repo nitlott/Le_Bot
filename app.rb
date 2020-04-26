@@ -198,7 +198,7 @@ class BitmexWebsocket
                 x=@data[:position][:currentQty]
                 z=data.currentQty
                 if x !=  z
-                    push("Position updated to: #{data.currentQty} from #{@data[:position][:currentQty]}")
+                    push("Position updated to: #{data.currentQty} previously: #{@data[:position][:currentQty]}")
                 end
                 pos.each do |k,v|
                     @data[:position][k] = v

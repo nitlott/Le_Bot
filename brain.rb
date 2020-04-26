@@ -33,17 +33,35 @@ def brain
                     target4=entry + 5
                     target4 = (target4*2).ceil.to_f / 2
                     order = @client.order(clOrdID: o[:Id]).update price: target4, orderQty: +((@data[:position][:currentQty].abs/3).ceil.round)
-                    push("Ammended Sell order abit closer!")
+                    push("Ammended Sell order a bit closer!")
+                    o[:Price] = target4
+                end
+                if ((o[:Side] == 'Buy' and ((@data[:position][:avgEntryPrice] - o[:Price]) > 10)) and ($last_global_trade > @data[:position][:avgEntryPrice]))
+                    target4=entry + 5
+                    target4 = (target4*2).ceil.to_f / 2
+                    order = @client.order(clOrdID: o[:Id]).update price: target4 #, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
+                    #@data[:position][:currentQty].abs/3).ceil.round)
+                    push("Ammended Sell order a bit closer!")
+                    o[:Price] = target4
                 end
             end
         elsif @data[:position][:currentQty] < 0 #short
             @data[:orders].each do |o| 
-                if ((o[:Side] == 'Buy' and (@data[:position][:avgEntryPrice] - o[:Price]) > 10) and ($last_global_trade > @data[:position][:avgEntryPrice]))
+                if ((o[:Side] == 'Buy' and ((@data[:position][:avgEntryPrice] - o[:Price]) > 10)) and ($last_global_trade > @data[:position][:avgEntryPrice]))
                     target4=entry - 5
                     target4 = (target4*2).ceil.to_f / 2
                     order = @client.order(clOrdID: o[:Id]).update price: target4, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
                     #@data[:position][:currentQty].abs/3).ceil.round)
-                    push("Ammended Buy order abit closer!")
+                    push("Ammended Buy order a bit closer!")
+                    o[:Price] = target4
+                end
+                if ((o[:Side] == 'Sell' and ((o[:Price] - @data[:position][:avgEntryPrice]) > 10)) and ($last_global_trade < @data[:position][:avgEntryPrice]))
+                    target4=entry + 5
+                    target4 = (target4*2).ceil.to_f / 2
+                    order = @client.order(clOrdID: o[:Id]).update price: target4 #, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
+                    #@data[:position][:currentQty].abs/3).ceil.round)
+                    push("Ammended Sell order a bit closer!")
+                    o[:Price] = target4
                 end
             end
         else
