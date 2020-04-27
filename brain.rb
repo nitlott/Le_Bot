@@ -35,7 +35,7 @@ def brain
                     order = @client.order(clOrdID: o[:Id]).update price: target4, orderQty: +((@data[:position][:currentQty].abs/3).ceil.round)
                     push("Ammended Sell order a bit closer!")
                     o[:Price] = target4
-                    o[:Num] = +((@data[:position][:currentQty].abs/3).ceil.round
+                    o[:Num] = +(@data[:position][:currentQty].abs/3).ceil.round
                 end
                 if ((o[:Side] == 'Buy' and ((@data[:position][:avgEntryPrice] - o[:Price]) > 10)) and ($last_global_trade > @data[:position][:avgEntryPrice]))
                     target4=entry - 5
@@ -55,7 +55,7 @@ def brain
                     #@data[:position][:currentQty].abs/3).ceil.round)
                     push("Ammended Buy order a bit closer!")
                     o[:Price] = target4
-                    o[:Num] = ((@data[:position][:currentQty].abs/3).ceil.round
+                    o[:Num] = (@data[:position][:currentQty].abs/3).ceil.round
                 end
                 if ((o[:Side] == 'Sell' and ((o[:Price] - @data[:position][:avgEntryPrice]) > 10)) and ($last_global_trade < @data[:position][:avgEntryPrice]))
                     target4=entry + 5
