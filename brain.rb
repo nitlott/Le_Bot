@@ -72,6 +72,48 @@ def brain
         sleep 3
     elsif total_orders < 2  #and @data[:margin][:availableMargin] > 200
         if @data[:position][:currentQty] != 0 
+            if @data[:position][:currentQty] > 0 #long
+                @data[:orders].each do |o| 
+                    if ((o[:Side] == 'Sell' and ((o[:Price] - @data[:position][:avgEntryPrice]) > 10)) and ($last_global_trade < @data[:position][:avgEntryPrice]))
+                        target4=entry + 5
+                        target4 = (target4*2).ceil.to_f / 2
+                        order = @client.order(clOrdID: o[:Id]).update price: target4, orderQty: +((@data[:position][:currentQty].abs/3).ceil.round)
+                        push("Ammended Sell order a bit closer!")
+                        o[:Price] = target4
+                        o[:Num] = +(@data[:position][:currentQty].abs/3).ceil.round
+                    end
+                    if ((o[:Side] == 'Buy' and ((@data[:position][:avgEntryPrice] - o[:Price]) > 10)) and ($last_global_trade > @data[:position][:avgEntryPrice]))
+                        target4=entry - 5
+                        target4 = (target4*2).ceil.to_f / 2
+                        order = @client.order(clOrdID: o[:Id]).update price: target4 #, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
+                        #@data[:position][:currentQty].abs/3).ceil.round)
+                        push("Ammended Sell order a bit closer!")
+                        o[:Price] = target4
+                    end
+                end
+            elsif @data[:position][:currentQty] < 0 #short
+                @data[:orders].each do |o| 
+                    if ((o[:Side] == 'Buy' and ((@data[:position][:avgEntryPrice] - o[:Price]) > 10)) and ($last_global_trade > @data[:position][:avgEntryPrice]))
+                        target4=entry - 5
+                        target4 = (target4*2).ceil.to_f / 2
+                        order = @client.order(clOrdID: o[:Id]).update price: target4, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
+                        #@data[:position][:currentQty].abs/3).ceil.round)
+                        push("Ammended Buy order a bit closer!")
+                        o[:Price] = target4
+                        o[:Num] = (@data[:position][:currentQty].abs/3).ceil.round
+                    end
+                    if ((o[:Side] == 'Sell' and ((o[:Price] - @data[:position][:avgEntryPrice]) > 10)) and ($last_global_trade < @data[:position][:avgEntryPrice]))
+                        target4=entry + 5
+                        target4 = (target4*2).ceil.to_f / 2
+                        order = @client.order(clOrdID: o[:Id]).update price: target4 #, orderQty: ((@data[:position][:currentQty].abs/3).ceil.round)
+                        #@data[:position][:currentQty].abs/3).ceil.round)
+                        push("Ammended Sell order a bit closer!")
+                        o[:Price] = target4
+                    end
+                end
+            else
+                push("Error! Order-ammend issue!")
+            end
             if total_orders < 2 and @data[:position][:currentQty] > 0 #long
                 if ($last_global_trade < @data[:position][:avgEntryPrice])
                     target1=(entry + 2.5) ; (target1 = (target1*2).ceil.to_f / 2) 
